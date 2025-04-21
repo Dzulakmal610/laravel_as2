@@ -1,0 +1,47 @@
+version: '3.8'
+
+networks:
+  sysops:
+    driver: bridge
+
+volumes:
+  mysqldbdatavolume:
+  redisdatavolume:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: dwtygroup14app  # Updated container name
+    ports:
+      - "8080:80"
+    volumes:
+      - ./laravel:/var/www/html
+    networks:
+      - sysops
+    environment:
+      TZ: Asia/Brunei
+
+  redis:
+    image: redis:latest
+    container_name: rediscontainer
+    volumes:
+      - redisdatavolume:/data
+    networks:
+      - sysops
+
+  mysqldb:
+    image: mysql:8.0.30
+    container_name: mysqldbcontainer
+    ports:
+      - "33060:3306"
+    volumes:
+      - mysqldbdatavolume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laraveluser
+      MYSQL_PASSWORD: password
+    networks:
+      - sysops
